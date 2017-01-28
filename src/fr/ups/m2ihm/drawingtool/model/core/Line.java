@@ -18,6 +18,8 @@ public class Line implements Shape {
     public Point getDestination() {
         return destination;
     }
+    
+    /*Test*/
 
     @Override
     public boolean equals(Object obj) {
