@@ -24,6 +24,10 @@ public class UndoManager {
     private final Map<String, Boolean> eventAvailability;
     private final Stack<Command> undoableCommands;
     private final Stack<Command> redoableCommands;
+    
+    public Stack<Command> getUndoableCommands() {
+        return undoableCommands;
+    }
 
     public Boolean isUndoEnabled() {
         return PossibleState.UNDO_ONLY.equals(currentState) || PossibleState.UNDO_REDOABLE.equals(currentState);
