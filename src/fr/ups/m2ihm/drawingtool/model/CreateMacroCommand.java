@@ -9,6 +9,7 @@ import fr.ups.m2ihm.drawingtool.model.core.DrawingToolCore;
 import fr.ups.m2ihm.drawingtool.model.core.Shape;
 import fr.ups.m2ihm.drawingtool.undomanager.Command;
 import java.util.ArrayList;
+import java.util.Stack;
 
 /**
  *
@@ -16,22 +17,28 @@ import java.util.ArrayList;
  */
 public class CreateMacroCommand implements Command {
     private final DrawingToolCore core;
-    private final ArrayList<Shape> macroList;
+    private final Stack<Command> macroList;
     
-    public CreateMacroCommand(DrawingToolCore core_,ArrayList<Shape> macroList_){
+    public CreateMacroCommand(DrawingToolCore core_,Stack<Command> macroList_){
         this.core = core_;
         this.macroList = macroList_;
+    }
+    
+    public Stack<Command> getShapes(){
+        return macroList;
     }
     
     @Override
     public void execute() {
         for ( int i = 0 ; i < macroList.size() ; i++){
-            core.createShape(macroList.get(i));
+             macroList.get(i).execute();
         }
     }
 
     @Override
-    public void undo() {       
-        core.removeShape(macroList.get(macroList.size()-1));
+    public void undo() {     
+        for( int i = 0 ; i < macroList.size() ;i++){
+            macroList.get(i).undo();
+        }
     }
 }

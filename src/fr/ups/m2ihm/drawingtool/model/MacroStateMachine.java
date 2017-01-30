@@ -22,6 +22,7 @@ import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.Stack;
 
 /**
  *
@@ -33,6 +34,8 @@ public class MacroStateMachine implements DrawingStateMachine {
     private final ArrayList<Shape> macroList;
     private final PropertyChangeSupport support;
     private final Map<DrawingEventType, Boolean> eventAvailability;
+    private RecordManager recordManager;
+    
    
     public MacroStateMachine(){
         support = new PropertyChangeSupport(this);
@@ -42,6 +45,15 @@ public class MacroStateMachine implements DrawingStateMachine {
             eventAvailability.put(eventType, null);
         }
     }
+    
+    public RecordManager getRecordManager(){
+        return recordManager;
+    }
+    
+    public void setRecordManager(RecordManager recordManager){
+        this.recordManager = recordManager;
+    }
+    
     public UndoManager getUndoManager() {
         return undoManager;
     }
@@ -49,41 +61,13 @@ public class MacroStateMachine implements DrawingStateMachine {
     public void setUndoManager(UndoManager undoManager) {
         this.undoManager = undoManager;
     }
-    private void beginDraw(Shape shape, DrawingToolCore core) {
+    private void beginDraw(Point point, DrawingToolCore core) {
         switch (currentState) {
             case IDLE:
                 gotoState(PossibleState.MACRO);
-                ghost = shape;
-                macroList.add(shape);
+                p0 = point;
                 break;
             case MACRO:
-                break;
-        }
-    }
-
-    private void cancelDraw(DrawingToolCore core) {
-        switch (currentState) {
-            case IDLE:
-                break;
-            case MACRO:
-                Shape oldGhost = ghost;
-                ghost = null;
-                gotoState(MacroStateMachine.PossibleState.IDLE);
-                firePropertyChange(GHOST_PROPERTY, oldGhost, ghost);
-                
-                break;
-        }
-    }
-    private void draw(Shape shape, DrawingToolCore core) {
-        Shape oldGhost;
-        switch (currentState) {
-            case IDLE:
-                break;
-            case MACRO:
-                oldGhost = ghost;
-                macroList.add(shape);
-                gotoState(MacroStateMachine.PossibleState.MACRO);
-                firePropertyChange(GHOST_PROPERTY, oldGhost, ghost);
                 break;
         }
     }
@@ -93,9 +77,8 @@ public class MacroStateMachine implements DrawingStateMachine {
             case IDLE:
                 break;
             case MACRO:
-                Shape oldGhost = ghost;
-                ghost = null;
-
+                Stack<Command> command = new Stack<>();
+                Shape shape = ((CreateShapeCommand) getRecordManager().getRecord().get(0)).
                 //core.createShape(oldGhost);
                 Command com = new CreateMacroCommand(core, macroList);
                 getUndoManager().registerCommand(com);
@@ -147,12 +130,20 @@ public class MacroStateMachine implements DrawingStateMachine {
     
     @Override
     public void init(DrawingToolCore core) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        gotoState(PossibleState.IDLE);
+        firePropertyChange(SHAPES_PROPERTY, null, core.getShapes());
     }
 
     @Override
     public void handleEvent(DrawingEvent event, DrawingToolCore core) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        switch(event.getEventType()){
+            case BEGIN_DRAW:
+                beginDraw(event.getPoint(), core);
+                break;
+            case END_DRAW:
+                endDraw(core);
+                break;
+        }
     }
 
     @Override

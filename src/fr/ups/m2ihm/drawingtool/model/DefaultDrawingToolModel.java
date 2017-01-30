@@ -161,9 +161,6 @@ public class DefaultDrawingToolModel implements DrawingToolModel {
             case DRAW_RECTANGLE:
                 drawRectangle();
                 break;
-            case DRAWING_MACRO:
-                
-                break;
         }
     }
 
