@@ -23,17 +23,17 @@ public class RecordManager {
         support = new PropertyChangeSupport(this);
         
     }
-    public void registerCommand(Command command) {
+    public void registerCommand(CreateMacroCommand cmc) {
         switch (currentState) {
             case IDLE:
                 currentState = State.MACRO;
-                command.execute();
-                record.push(command);
+                cmc.execute();
+                record.push(cmc);
                 break;
             case MACRO:
                 currentState = State.MACRO;
-                command.execute();
-                record.push(command);
+                cmc.execute();
+                record.push(cmc);
                 break;
         }
     }

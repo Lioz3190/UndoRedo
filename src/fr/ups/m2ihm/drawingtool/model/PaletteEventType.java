@@ -4,6 +4,7 @@ public enum PaletteEventType {
     DRAW_LINE("drawLineProperty"),
     DRAW_RECTANGLE("drawRectangleProperty"),
     DRAW_MACRO("drawMacroProperty");
+
     private final String propertyName;
 
     private PaletteEventType(String propertyName) {

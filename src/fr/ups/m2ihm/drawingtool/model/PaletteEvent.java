@@ -7,7 +7,6 @@ public class PaletteEvent {
         this.eventType = eventType;
     }
 
-
     public PaletteEventType getEventType() {
         return eventType;
     }

@@ -2,6 +2,7 @@ package fr.ups.m2ihm.drawingtool.model;
 
 import static fr.ups.m2ihm.drawingtool.model.PaletteEventType.DRAW_LINE;
 import static fr.ups.m2ihm.drawingtool.model.PaletteEventType.DRAW_RECTANGLE;
+import static fr.ups.m2ihm.drawingtool.model.PaletteEventType.DRAW_MACRO;
 import static fr.ups.m2ihm.drawingtool.model.PaletteEventType.values;
 import fr.ups.m2ihm.drawingtool.model.core.DefaultDrawingToolCore;
 import fr.ups.m2ihm.drawingtool.model.core.DrawingToolCore;
@@ -18,6 +19,7 @@ public class DefaultDrawingToolModel implements DrawingToolModel {
     private DrawingStateMachine currentStateMachine;
     private final DrawingStateMachine DEFAULT_LINE_STATE_MACHINE = new LineStateMachine();
     private final DrawingStateMachine DEFAULT_RECTANGLE_STATE_MACHINE = new RectangleStateMachine();
+    private final DrawingStateMachine DEFAULT_MACRO_STATE_MACHINE = new MacroStateMachine();
     private final DrawingToolCore core;
     private final PropertyChangeSupport support;
     private final UndoManager undoManager;
@@ -39,14 +41,17 @@ public class DefaultDrawingToolModel implements DrawingToolModel {
 
     private enum PossibleState {
 
-        DRAWING_LINE(false, true),
-        DRAWING_RECTANGLE(true, false);
+        DRAWING_LINE(false, true,true),
+        DRAWING_RECTANGLE(true, false,true),
+        DRAWING_MACRO(true,true,false);
         public final boolean lineEnabled;
         public final boolean rectangleEnabled;
+        public final boolean macroEnabled;
 
-        private PossibleState(boolean lineEnabled, boolean rectangleEnabled) {
+        private PossibleState(boolean lineEnabled, boolean rectangleEnabled, boolean macroEnabled) {
             this.lineEnabled = lineEnabled;
             this.rectangleEnabled = rectangleEnabled;
+            this.macroEnabled = macroEnabled;
         }
 
     }
@@ -65,11 +70,14 @@ public class DefaultDrawingToolModel implements DrawingToolModel {
         availableDrawingStateMachines = new EnumMap<>(PossibleState.class);
         availableDrawingStateMachines.put(PossibleState.DRAWING_LINE, DEFAULT_LINE_STATE_MACHINE);
         availableDrawingStateMachines.put(PossibleState.DRAWING_RECTANGLE, DEFAULT_RECTANGLE_STATE_MACHINE);
+        availableDrawingStateMachines.put(PossibleState.DRAWING_MACRO, DEFAULT_MACRO_STATE_MACHINE);
         bouncingPropertyChangeListener = (PropertyChangeEvent evt) -> {
             firePropertyChange(evt.getPropertyName(), evt.getOldValue(), evt.getNewValue());
         };
+        DEFAULT_MACRO_STATE_MACHINE.addPropertyListener(bouncingPropertyChangeListener);
         DEFAULT_LINE_STATE_MACHINE.addPropertyListener(bouncingPropertyChangeListener);
         DEFAULT_RECTANGLE_STATE_MACHINE.addPropertyListener(bouncingPropertyChangeListener);
+        DEFAULT_MACRO_STATE_MACHINE.setUndoManager(undoManager);
         DEFAULT_LINE_STATE_MACHINE.setUndoManager(undoManager);
         DEFAULT_RECTANGLE_STATE_MACHINE.setUndoManager(undoManager);
 
@@ -125,14 +133,16 @@ public class DefaultDrawingToolModel implements DrawingToolModel {
         currentState = possibleState;
         currentStateMachine = availableDrawingStateMachines.get(currentState);
         currentStateMachine.init(core);
-        enableEvents(currentState.lineEnabled, currentState.rectangleEnabled);
+        enableEvents(currentState.lineEnabled, currentState.rectangleEnabled,currentState.macroEnabled);
     }
 
     private void enableEvents(
             boolean drawingLineEnabled,
-            boolean drawingRectangleEnabled) {
+            boolean drawingRectangleEnabled,
+            boolean drawingMacroEnabled) {
         fireEventAvailabilityChanged(DRAW_LINE, drawingLineEnabled);
         fireEventAvailabilityChanged(DRAW_RECTANGLE, drawingRectangleEnabled);
+        fireEventAvailabilityChanged(DRAW_MACRO, drawingMacroEnabled);
 
     }
 
@@ -151,6 +161,9 @@ public class DefaultDrawingToolModel implements DrawingToolModel {
             case DRAW_RECTANGLE:
                 drawRectangle();
                 break;
+            case DRAWING_MACRO:
+                
+                break;
         }
     }
 
@@ -161,6 +174,8 @@ public class DefaultDrawingToolModel implements DrawingToolModel {
             case DRAWING_RECTANGLE:
                 gotoState(PossibleState.DRAWING_LINE);
                 break;
+            case DRAWING_MACRO:
+                break;
         }
     }
 
@@ -170,6 +185,8 @@ public class DefaultDrawingToolModel implements DrawingToolModel {
                 gotoState(PossibleState.DRAWING_RECTANGLE);
                 break;
             case DRAWING_RECTANGLE:
+                break;
+            case DRAWING_MACRO:
                 break;
         }
     }

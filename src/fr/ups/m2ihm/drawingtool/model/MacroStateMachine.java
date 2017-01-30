@@ -16,6 +16,7 @@ import fr.ups.m2ihm.drawingtool.model.core.DrawingToolCore;
 import fr.ups.m2ihm.drawingtool.model.core.Shape;
 import fr.ups.m2ihm.drawingtool.undomanager.Command;
 import fr.ups.m2ihm.drawingtool.undomanager.UndoManager;
+import java.awt.Point;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
@@ -28,7 +29,7 @@ import java.util.Map;
  */
 public class MacroStateMachine implements DrawingStateMachine {
     private UndoManager undoManager;
-    private Shape ghost;
+    private Point p0,p;
     private final ArrayList<Shape> macroList;
     private final PropertyChangeSupport support;
     private final Map<DrawingEventType, Boolean> eventAvailability;
