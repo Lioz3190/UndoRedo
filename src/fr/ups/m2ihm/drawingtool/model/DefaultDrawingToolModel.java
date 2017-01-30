@@ -33,6 +33,10 @@ public class DefaultDrawingToolModel implements DrawingToolModel {
     public void redo() {
         undoManager.redo();
     }
+    
+    public void undoRegional(){
+        undoManager.undoRegional();
+    }
 
     @Override
     public int allUndo() {

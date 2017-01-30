@@ -52,5 +52,13 @@ public class Rectangle implements Shape {
     public String toString() {
         return "Rectangle{" + "upperLeftCorner=" + upperLeftCorner + ", lowerRightCorner=" + lowerRightCorner + '}';
     }
+    
+    public boolean isInclude(Rectangle rec){
+        if ((lowerRightCorner.x >= rec.lowerRightCorner.x && upperLeftCorner.x <= rec.upperLeftCorner.x) && 
+            (lowerRightCorner.y >= rec.lowerRightCorner.y && upperLeftCorner.y <= rec.upperLeftCorner.y))
+            return true;
+        else
+            return false;
+    }
 
 }

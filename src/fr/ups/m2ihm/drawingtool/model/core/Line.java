@@ -51,6 +51,14 @@ public class Line implements Shape {
     public String toString() {
         return "Line{" + "source=" + source + ", destination=" + destination + '}';
     }
+    
+    public boolean isInclude(Rectangle rec){
+        if ((source.x >= rec.lowerRightCorner.x && source.x <= rec.upperLeftCorner.x) && 
+            (source.y >= rec.lowerRightCorner.y && source.y <= rec.upperLeftCorner.y))
+            return true;
+        else
+            return false;
+    }
 
 
 }
