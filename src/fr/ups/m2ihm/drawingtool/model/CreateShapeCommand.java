@@ -22,7 +22,9 @@ class CreateShapeCommand implements Command {
         this.core = core;
         this.shape = shape;
     }
-
+    public Shape getShape(){
+        return shape;
+    }
     @Override
     public void execute() {
         core.createShape(shape);

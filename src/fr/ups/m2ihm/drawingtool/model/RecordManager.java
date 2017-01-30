@@ -42,7 +42,7 @@ public class RecordManager {
         switch(currentState){
             case IDLE:
                 currentState = State.MACRO;
-                record = new Stack<Command>();
+                record = new Stack<>();
                 break;
             case MACRO:
                 break;

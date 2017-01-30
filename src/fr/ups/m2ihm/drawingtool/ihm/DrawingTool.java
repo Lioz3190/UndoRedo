@@ -5,6 +5,7 @@
 package fr.ups.m2ihm.drawingtool.ihm;
 
 import fr.ups.m2ihm.drawingtool.model.*;
+import fr.ups.m2ihm.drawingtool.ihm.WhiteBoardPanel;
 import static fr.ups.m2ihm.drawingtool.model.DrawingEventType.BEGIN_DRAW;
 import static fr.ups.m2ihm.drawingtool.model.DrawingEventType.CANCEL_DRAW;
 import static fr.ups.m2ihm.drawingtool.model.DrawingEventType.DRAW;
@@ -133,7 +134,6 @@ public class DrawingTool extends javax.swing.JFrame {
         btnLine = new javax.swing.JButton();
         btnRectangle = new javax.swing.JButton();
         btnMacro = new javax.swing.JButton();
-        whiteBoardPanel = new fr.ups.m2ihm.drawingtool.ihm.WhiteBoardPanel();
         jButton1 = new javax.swing.JButton();
         jSeparator1 = new javax.swing.JSeparator();
         jMenuBar1 = new javax.swing.JMenuBar();
@@ -190,37 +190,6 @@ public class DrawingTool extends javax.swing.JFrame {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        whiteBoardPanel.setBackground(new java.awt.Color(255, 255, 255));
-        whiteBoardPanel.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mousePressed(java.awt.event.MouseEvent evt) {
-                whiteBoardPanelMousePressed(evt);
-            }
-            public void mouseReleased(java.awt.event.MouseEvent evt) {
-                whiteBoardPanelMouseReleased(evt);
-            }
-        });
-        whiteBoardPanel.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
-            public void mouseDragged(java.awt.event.MouseEvent evt) {
-                whiteBoardPanelMouseDragged(evt);
-            }
-        });
-        whiteBoardPanel.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyPressed(java.awt.event.KeyEvent evt) {
-                whiteBoardPanelKeyPressed(evt);
-            }
-        });
-
-        javax.swing.GroupLayout whiteBoardPanelLayout = new javax.swing.GroupLayout(whiteBoardPanel);
-        whiteBoardPanel.setLayout(whiteBoardPanelLayout);
-        whiteBoardPanelLayout.setHorizontalGroup(
-            whiteBoardPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 266, Short.MAX_VALUE)
-        );
-        whiteBoardPanelLayout.setVerticalGroup(
-            whiteBoardPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
-        );
-
         jButton1.setText("Undo Group");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -263,9 +232,7 @@ public class DrawingTool extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
                         .addComponent(jButton1)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(whiteBoardPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
+                .addContainerGap(284, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -276,10 +243,6 @@ public class DrawingTool extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jButton1)
                 .addGap(0, 96, Short.MAX_VALUE))
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(whiteBoardPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
         );
 
         pack();
@@ -355,6 +318,5 @@ public class DrawingTool extends javax.swing.JFrame {
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JMenuItem menuRedo;
     private javax.swing.JMenuItem menuUndo;
-    private fr.ups.m2ihm.drawingtool.ihm.WhiteBoardPanel whiteBoardPanel;
     // End of variables declaration//GEN-END:variables
 }
