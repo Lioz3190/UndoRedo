@@ -5,6 +5,9 @@
  */
 package fr.ups.m2ihm.drawingtool.undomanager;
 
+import fr.ups.m2ihm.drawingtool.model.core.Rectangle;
+
+
 /**
  *
  * @author David Navarre
@@ -12,4 +15,5 @@ package fr.ups.m2ihm.drawingtool.undomanager;
 public interface Command {
     void execute();
     void undo();
+    boolean isInclude(Rectangle rec);
 }

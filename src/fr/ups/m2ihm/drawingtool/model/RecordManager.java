@@ -20,40 +20,30 @@ public class RecordManager {
     public HashMap<String,Stack<Command>> macroList;
     private Stack<Command> record;
     private PropertyChangeSupport support;
-    private Stack<Command> currentRecord;
-    
     public RecordManager(){
         record = new Stack<>();
         support = new PropertyChangeSupport(this);
         macroList = new HashMap<>();
-        currentRecord = new Stack<>();
-        init();
+        
     }
     
     public Stack<Command> getRecord(){
         return record;
     }
     
-    
-    public Stack<Command> getCurrentRecord(){
-        return currentRecord;
+    public HashMap<String,Stack<Command>> getMacroList(){
+        return macroList;
     }
-    
-    
-    public void setCurrentRecord(String Name){
-        currentRecord = macroList.get(Name);
-    }
-    
     public void init(){
         currentState = State.IDLE;
     }
     
     public void beginRecording(){
+        System.out.println("begin Record");
         switch(currentState){
             case IDLE:
                 currentState = State.MACRO;
                 record = new Stack<>();
-                System.out.println("begin");
                 break;
             case MACRO:
                 break;
@@ -62,26 +52,24 @@ public class RecordManager {
     }
     
     public void endRecording(String macroName){
+        System.out.println("end Record");
         switch (currentState){
             case IDLE:
                 break;
             case MACRO:
                 currentState = State.IDLE;
-                if(macroName != null && record.size() != 0){
+                if(macroName != null && !record.isEmpty())
                     macroList.put(macroName, record);
-                    System.out.println("lol");
-                }
-                    
                 break;
         }
     }
     
     public void registerCommand(Command command){
+        System.out.println("register Command ");
         switch (currentState) {
             case IDLE:
                 break;
             case MACRO:
-                System.out.println("command");
                 if (command instanceof CreateMacroCommand)
                     registerCommand((CreateMacroCommand)command);
                 else 
@@ -90,11 +78,11 @@ public class RecordManager {
         }
     }
     public void registerCommand(CreateMacroCommand cmc) {
+        System.out.println("register MacroComm");
         switch (currentState) {
             case IDLE:
                 break;
             case MACRO:
-                System.out.println("Macro");
                 for ( Command command : cmc.getShapes())
                     registerCommand(command);       
                 break;
@@ -106,5 +94,4 @@ public class RecordManager {
     }
     private State currentState;
     
-   
 }

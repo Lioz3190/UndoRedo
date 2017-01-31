@@ -6,6 +6,7 @@
 package fr.ups.m2ihm.drawingtool.model;
 
 import fr.ups.m2ihm.drawingtool.model.core.DrawingToolCore;
+import fr.ups.m2ihm.drawingtool.model.core.Rectangle;
 import fr.ups.m2ihm.drawingtool.model.core.Shape;
 import fr.ups.m2ihm.drawingtool.undomanager.Command;
 import java.util.ArrayList;
@@ -41,4 +42,15 @@ public class CreateMacroCommand implements Command {
             macroList.get(i).undo();
         }
     }
+
+
+    public boolean isInclude(Rectangle rec) {
+        for ( int i = 0 ; i < macroList.size() ; i++){
+            if(!macroList.get(i).isInclude(rec)){
+                return false;
+            }
+        }
+        return true;
+    }
+
 }

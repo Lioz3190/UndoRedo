@@ -11,7 +11,6 @@ public interface DrawingStateMachine {
     void init(DrawingToolCore core);
     void handleEvent(DrawingEvent event, DrawingToolCore core);
     void setUndoManager(UndoManager undoManager);
-    void setRecoManager(RecordManager rm);
     void addPropertyListener(PropertyChangeListener listener);
     void addPropertyListener(String propertyName, PropertyChangeListener listener);
     void removePropertyListener(PropertyChangeListener listener);

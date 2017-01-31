@@ -3,6 +3,7 @@ package fr.ups.m2ihm.drawingtool.model;
 import static fr.ups.m2ihm.drawingtool.model.PaletteEventType.DRAW_LINE;
 import static fr.ups.m2ihm.drawingtool.model.PaletteEventType.DRAW_RECTANGLE;
 import static fr.ups.m2ihm.drawingtool.model.PaletteEventType.DRAW_MACRO;
+import static fr.ups.m2ihm.drawingtool.model.PaletteEventType.DRAW_REGIONAL;
 import static fr.ups.m2ihm.drawingtool.model.PaletteEventType.values;
 import fr.ups.m2ihm.drawingtool.model.core.DefaultDrawingToolCore;
 import fr.ups.m2ihm.drawingtool.model.core.DrawingToolCore;
@@ -20,14 +21,11 @@ public class DefaultDrawingToolModel implements DrawingToolModel {
     private final DrawingStateMachine DEFAULT_LINE_STATE_MACHINE = new LineStateMachine();
     private final DrawingStateMachine DEFAULT_RECTANGLE_STATE_MACHINE = new RectangleStateMachine();
     private final DrawingStateMachine DEFAULT_MACRO_STATE_MACHINE = new MacroStateMachine();
+     private final DrawingStateMachine DEFAULT_REGIONAL_STATE_MACHINE = new SelectionStateMachine();
     private final DrawingToolCore core;
     private final PropertyChangeSupport support;
     private final UndoManager undoManager;
-    private final RecordManager recoManager;
-    
-    public RecordManager getRecordManager(){
-        return recoManager;
-    }
+
     @Override
     public void undo() {
         undoManager.undo();
@@ -37,39 +35,30 @@ public class DefaultDrawingToolModel implements DrawingToolModel {
     public void redo() {
         undoManager.redo();
     }
-    
-    public void undoRegional(){
-        undoManager.undoRegional();
-    }
+
 
     @Override
     public int allUndo() {
        return(undoManager.getUndoableCommands().size());
     }
 
-    @Override
-    public void startMacro() {
-        recoManager.beginRecording();
-    }
-
-    @Override
-    public void endMacro(String macroName) {
-        recoManager.endRecording(macroName);
-    }
-
     private enum PossibleState {
 
-        DRAWING_LINE(false, true,true),
-        DRAWING_RECTANGLE(true, false,true),
-        DRAWING_MACRO(true,true,false);
+        DRAWING_LINE(false, true,true,false),
+        DRAWING_RECTANGLE(true, false,true,false),
+        DRAWING_MACRO(true,true,false,false),
+        DRAWING_REGIONAL(true,true,true,false);
+        
         public final boolean lineEnabled;
         public final boolean rectangleEnabled;
         public final boolean macroEnabled;
+        public final boolean regionalEnabled;
 
-        private PossibleState(boolean lineEnabled, boolean rectangleEnabled, boolean macroEnabled) {
+        private PossibleState(boolean lineEnabled, boolean rectangleEnabled, boolean macroEnabled, boolean regionalEnabled) {
             this.lineEnabled = lineEnabled;
             this.rectangleEnabled = rectangleEnabled;
             this.macroEnabled = macroEnabled;
+            this.regionalEnabled = regionalEnabled;
         }
 
     }
@@ -81,7 +70,6 @@ public class DefaultDrawingToolModel implements DrawingToolModel {
         core = new DefaultDrawingToolCore();
         undoManager = new UndoManager();
         support = new PropertyChangeSupport(this);
-        recoManager = new RecordManager();
         eventAvailability = new EnumMap<>(PaletteEventType.class);
         for (PaletteEventType eventType : values()) {
             eventAvailability.put(eventType, null);
@@ -90,19 +78,18 @@ public class DefaultDrawingToolModel implements DrawingToolModel {
         availableDrawingStateMachines.put(PossibleState.DRAWING_LINE, DEFAULT_LINE_STATE_MACHINE);
         availableDrawingStateMachines.put(PossibleState.DRAWING_RECTANGLE, DEFAULT_RECTANGLE_STATE_MACHINE);
         availableDrawingStateMachines.put(PossibleState.DRAWING_MACRO, DEFAULT_MACRO_STATE_MACHINE);
+        availableDrawingStateMachines.put(PossibleState.DRAWING_REGIONAL, DEFAULT_REGIONAL_STATE_MACHINE);
         bouncingPropertyChangeListener = (PropertyChangeEvent evt) -> {
             firePropertyChange(evt.getPropertyName(), evt.getOldValue(), evt.getNewValue());
         };
         DEFAULT_MACRO_STATE_MACHINE.addPropertyListener(bouncingPropertyChangeListener);
+        DEFAULT_REGIONAL_STATE_MACHINE.addPropertyListener(bouncingPropertyChangeListener);
         DEFAULT_LINE_STATE_MACHINE.addPropertyListener(bouncingPropertyChangeListener);
         DEFAULT_RECTANGLE_STATE_MACHINE.addPropertyListener(bouncingPropertyChangeListener);
         DEFAULT_MACRO_STATE_MACHINE.setUndoManager(undoManager);
+        DEFAULT_REGIONAL_STATE_MACHINE.setUndoManager(undoManager);
         DEFAULT_LINE_STATE_MACHINE.setUndoManager(undoManager);
         DEFAULT_RECTANGLE_STATE_MACHINE.setUndoManager(undoManager);
-        
-        DEFAULT_MACRO_STATE_MACHINE.setRecoManager(recoManager);
-        DEFAULT_LINE_STATE_MACHINE.setRecoManager(recoManager);
-        DEFAULT_RECTANGLE_STATE_MACHINE.setRecoManager(recoManager);
 
         undoManager.addPropertyChangeListener(UndoManager.UNDO_COMMANDS_PROPERTY, (e) -> {
             firePropertyChange(DrawingStateMachine.SHAPES_PROPERTY, null, core.getShapes());
@@ -145,7 +132,6 @@ public class DefaultDrawingToolModel implements DrawingToolModel {
     public void init() {
         gotoState(PossibleState.DRAWING_LINE);
         undoManager.init();
-        recoManager.init();
     }
 
     @Override
@@ -157,16 +143,18 @@ public class DefaultDrawingToolModel implements DrawingToolModel {
         currentState = possibleState;
         currentStateMachine = availableDrawingStateMachines.get(currentState);
         currentStateMachine.init(core);
-        enableEvents(currentState.lineEnabled, currentState.rectangleEnabled,currentState.macroEnabled);
+        enableEvents(currentState.lineEnabled, currentState.rectangleEnabled,currentState.macroEnabled,currentState.regionalEnabled);
     }
 
     private void enableEvents(
             boolean drawingLineEnabled,
             boolean drawingRectangleEnabled,
+            boolean drawingRegionalEnabled,
             boolean drawingMacroEnabled) {
         fireEventAvailabilityChanged(DRAW_LINE, drawingLineEnabled);
         fireEventAvailabilityChanged(DRAW_RECTANGLE, drawingRectangleEnabled);
         fireEventAvailabilityChanged(DRAW_MACRO, drawingMacroEnabled);
+        fireEventAvailabilityChanged(DRAW_REGIONAL, drawingRegionalEnabled);
 
     }
 
@@ -186,7 +174,9 @@ public class DefaultDrawingToolModel implements DrawingToolModel {
                 drawRectangle();
                 break;
             case DRAW_MACRO:
-                drawMacro();
+                break;
+            case DRAW_REGIONAL:
+                drawRegional();
                 break;
         }
     }
@@ -199,6 +189,8 @@ public class DefaultDrawingToolModel implements DrawingToolModel {
                 gotoState(PossibleState.DRAWING_LINE);
                 break;
             case DRAWING_MACRO:
+                break;
+            case DRAWING_REGIONAL:
                 gotoState(PossibleState.DRAWING_LINE);
                 break;
         }
@@ -212,23 +204,25 @@ public class DefaultDrawingToolModel implements DrawingToolModel {
             case DRAWING_RECTANGLE:
                 break;
             case DRAWING_MACRO:
-                gotoState(PossibleState.DRAWING_RECTANGLE);
+                break;
+            case DRAWING_REGIONAL:
+                gotoState(PossibleState.DRAWING_LINE);
                 break;
         }
     }
     
-    public void drawMacro(){
-        switch(currentState){
+     public void drawRegional() {
+        switch (currentState) {
             case DRAWING_LINE:
-                gotoState(PossibleState.DRAWING_MACRO);
+                gotoState(PossibleState.DRAWING_REGIONAL);
                 break;
             case DRAWING_RECTANGLE:
-                gotoState(PossibleState.DRAWING_MACRO);
+                gotoState(PossibleState.DRAWING_REGIONAL);
                 break;
             case DRAWING_MACRO:
                 break;
+            case DRAWING_REGIONAL:
+                break;
         }
     }
-    
-
 }

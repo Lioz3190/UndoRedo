@@ -54,8 +54,8 @@ public class Rectangle implements Shape {
     }
     
     public boolean isInclude(Rectangle rec){
-        if ((lowerRightCorner.x >= rec.lowerRightCorner.x && upperLeftCorner.x <= rec.upperLeftCorner.x) && 
-            (lowerRightCorner.y >= rec.lowerRightCorner.y && upperLeftCorner.y <= rec.upperLeftCorner.y))
+        if ((lowerRightCorner.x <= rec.lowerRightCorner.x && upperLeftCorner.x >= rec.upperLeftCorner.x) && 
+            (lowerRightCorner.y <= rec.lowerRightCorner.y && upperLeftCorner.y >= rec.upperLeftCorner.y))
             return true;
         else
             return false;

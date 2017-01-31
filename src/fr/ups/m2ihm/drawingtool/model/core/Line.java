@@ -53,8 +53,10 @@ public class Line implements Shape {
     }
     
     public boolean isInclude(Rectangle rec){
-        if ((source.x >= rec.lowerRightCorner.x && source.x <= rec.upperLeftCorner.x) && 
-            (source.y >= rec.lowerRightCorner.y && source.y <= rec.upperLeftCorner.y))
+        if ((source.x >= rec.upperLeftCorner.x && source.x <= rec.lowerRightCorner.x) && 
+            (source.y >= rec.upperLeftCorner.y && source.y <= rec.lowerRightCorner.y) &&
+            (destination.x >= rec.upperLeftCorner.x && destination.x <= rec.lowerRightCorner.x) && 
+            (destination.y >= rec.upperLeftCorner.y && destination.y <= rec.lowerRightCorner.y))
             return true;
         else
             return false;

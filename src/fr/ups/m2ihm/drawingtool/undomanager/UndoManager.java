@@ -4,6 +4,7 @@
  */
 package fr.ups.m2ihm.drawingtool.undomanager;
 
+import fr.ups.m2ihm.drawingtool.model.core.Rectangle;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.Collections;
@@ -20,7 +21,6 @@ public class UndoManager {
     public final static String REGISTER_AVAILABLE_PROPERTY = "registerAvailable";
     public final static String UNDO_COMMANDS_PROPERTY = "undo";
     public final static String REDO_COMMANDS_PROPERTY = "redo";
-    public final static String REGIONAL_COMMANDS_PROPERTY = "regional";
     private final PropertyChangeSupport support;
     private final Map<String, Boolean> eventAvailability;
     private final Stack<Command> undoableCommands;
@@ -205,23 +205,33 @@ public class UndoManager {
         }
     }
     
-     public void undoRegional() {
-        Command undoRegioCommand;
+    public Command commandToUndo(Rectangle rec){
+        System.out.println(undoableCommands.size());
+        for (int i = undoableCommands.size()-1; i >= 0 ; i--){
+            if (undoableCommands.get(i).isInclude(rec)){
+                return undoableCommands.get(i);
+            }
+        }
+        return null;
+    }
+    
+     public void undoRegional(Command com) {
         switch (currentState) {
             case IDLE:
                 break;
             case UNDO_ONLY:
                 if (undoableCommands.size() == 1) {
                     gotoState(PossibleState.REDO_ONLY);
-                    undoableCommands.pop().execute();
-                    //redoableCommands.push(undoRegioCommand);
+                    undoableCommands.remove(com);
+                    com.undo();
+                    redoableCommands.push(com);
                     firePropertyChange(UNDO_COMMANDS_PROPERTY, null, undoableCommands);
                     firePropertyChange(REDO_COMMANDS_PROPERTY, null, redoableCommands);
                 } else if (undoableCommands.size() > 1) {
                     gotoState(PossibleState.UNDO_REDOABLE);
-                    undoRegioCommand = undoableCommands.pop();
-                    undoRegioCommand.undo();
-                    redoableCommands.push(undoRegioCommand);
+                    undoableCommands.remove(com);
+                    com.undo();
+                    redoableCommands.push(com);
                     firePropertyChange(UNDO_COMMANDS_PROPERTY, null, undoableCommands);
                     firePropertyChange(REDO_COMMANDS_PROPERTY, null, redoableCommands);
                 }
@@ -231,16 +241,16 @@ public class UndoManager {
             case UNDO_REDOABLE:
                 if (undoableCommands.size() == 1) {
                     gotoState(PossibleState.REDO_ONLY);
-                    undoRegioCommand = undoableCommands.pop();
-                    undoRegioCommand.undo();
-                    redoableCommands.push(undoRegioCommand);
+                    undoableCommands.remove(com);
+                    com.undo();
+                    redoableCommands.push(com);
                     firePropertyChange(UNDO_COMMANDS_PROPERTY, null, undoableCommands);
                     firePropertyChange(REDO_COMMANDS_PROPERTY, null, redoableCommands);
                 } else if (undoableCommands.size() > 1) {
                     gotoState(PossibleState.UNDO_REDOABLE);
-                    undoRegioCommand = undoableCommands.pop();
-                    undoRegioCommand.undo();
-                    redoableCommands.push(undoRegioCommand);
+                    undoableCommands.remove(com);
+                    com.undo();
+                    redoableCommands.push(com);
                     firePropertyChange(UNDO_COMMANDS_PROPERTY, null, undoableCommands);
                     firePropertyChange(REDO_COMMANDS_PROPERTY, null, redoableCommands);
                 }

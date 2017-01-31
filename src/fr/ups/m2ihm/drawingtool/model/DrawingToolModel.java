@@ -10,9 +10,6 @@ public interface DrawingToolModel {
     void undo();
     void redo();
     int allUndo();
-    void startMacro();
-    void endMacro(String name);
-    RecordManager getRecordManager();
     void addPropertyListener(PropertyChangeListener listener);
     void addPropertyListener(String propertyName, PropertyChangeListener listener);
     void removePropertyListener(PropertyChangeListener listener);

@@ -24,8 +24,6 @@ import static java.awt.Color.green;
 import static java.awt.Color.pink;
 import static java.awt.Cursor.getDefaultCursor;
 import static java.awt.Cursor.getPredefinedCursor;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import static java.awt.event.KeyEvent.VK_ESCAPE;
 import java.beans.PropertyChangeEvent;
 import java.util.List;
@@ -93,6 +91,7 @@ public class DrawingTool extends javax.swing.JFrame {
         model.addPropertyListener(UndoManager.REDO_COMMANDS_PROPERTY, (e) -> {
             menuRedo.setEnabled(!((List) e.getNewValue()).isEmpty());
         });
+        
 
         model.addPropertyListener(DRAW.getPropertyName(), (PropertyChangeEvent evt) -> {
             Boolean enabled1 = (Boolean) evt.getNewValue();
@@ -112,7 +111,7 @@ public class DrawingTool extends javax.swing.JFrame {
         });
         
         model.addPropertyListener(DRAW_REGIONAL.getPropertyName(),(PropertyChangeEvent evt) ->{
-            bRegional.setEnabled((Boolean) evt.getNewValue());
+            btnRegional.setEnabled((Boolean) evt.getNewValue());
         });
 
         model.init();
@@ -139,14 +138,13 @@ public class DrawingTool extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         btnLine = new javax.swing.JButton();
         btnRectangle = new javax.swing.JButton();
-        btnMacro = new javax.swing.JToggleButton();
+        btnMacro = new javax.swing.JButton();
         whiteBoardPanel = new fr.ups.m2ihm.drawingtool.ihm.WhiteBoardPanel();
         jButton1 = new javax.swing.JButton();
         jSeparator1 = new javax.swing.JSeparator();
-        bRegional = new javax.swing.JButton();
-        choice1 = new java.awt.Choice();
+        btnRegional = new javax.swing.JButton();
         jMenuBar1 = new javax.swing.JMenuBar();
-        jMenu2 = new javax.swing.JMenu();
+        menuUndoRegional = new javax.swing.JMenu();
         menuUndo = new javax.swing.JMenuItem();
         menuRedo = new javax.swing.JMenuItem();
 
@@ -181,8 +179,10 @@ public class DrawingTool extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(btnLine, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(btnRectangle, javax.swing.GroupLayout.DEFAULT_SIZE, 125, Short.MAX_VALUE)
-                    .addComponent(btnMacro, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(btnRectangle, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(btnMacro, javax.swing.GroupLayout.PREFERRED_SIZE, 98, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -192,8 +192,9 @@ public class DrawingTool extends javax.swing.JFrame {
                 .addComponent(btnLine)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnRectangle)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 12, Short.MAX_VALUE)
-                .addComponent(btnMacro))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnMacro)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         whiteBoardPanel.setBackground(new java.awt.Color(255, 255, 255));
@@ -220,7 +221,7 @@ public class DrawingTool extends javax.swing.JFrame {
         whiteBoardPanel.setLayout(whiteBoardPanelLayout);
         whiteBoardPanelLayout.setHorizontalGroup(
             whiteBoardPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 603, Short.MAX_VALUE)
+            .addGap(0, 266, Short.MAX_VALUE)
         );
         whiteBoardPanelLayout.setVerticalGroup(
             whiteBoardPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -234,20 +235,14 @@ public class DrawingTool extends javax.swing.JFrame {
             }
         });
 
-        bRegional.setText("Undo Regional");
-        bRegional.addActionListener(new java.awt.event.ActionListener() {
+        btnRegional.setText("Undo Regional");
+        btnRegional.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                bRegionalActionPerformed(evt);
+                btnRegionalActionPerformed(evt);
             }
         });
 
-        choice1.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                choice1MouseClicked(evt);
-            }
-        });
-
-        jMenu2.setText("Edit");
+        menuUndoRegional.setText("Edit");
 
         menuUndo.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Z, java.awt.event.InputEvent.CTRL_MASK));
         menuUndo.setText("Undo");
@@ -256,7 +251,7 @@ public class DrawingTool extends javax.swing.JFrame {
                 menuUndoActionPerformed(evt);
             }
         });
-        jMenu2.add(menuUndo);
+        menuUndoRegional.add(menuUndo);
 
         menuRedo.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Y, java.awt.event.InputEvent.CTRL_MASK));
         menuRedo.setText("Redo");
@@ -265,9 +260,9 @@ public class DrawingTool extends javax.swing.JFrame {
                 menuRedoActionPerformed(evt);
             }
         });
-        jMenu2.add(menuRedo);
+        menuUndoRegional.add(menuRedo);
 
-        jMenuBar1.add(jMenu2);
+        jMenuBar1.add(menuUndoRegional);
 
         setJMenuBar(jMenuBar1);
 
@@ -278,14 +273,12 @@ public class DrawingTool extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 119, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jSeparator1, javax.swing.GroupLayout.DEFAULT_SIZE, 119, Short.MAX_VALUE)
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                .addComponent(bRegional, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                                .addComponent(jButton1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                            .addComponent(choice1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                            .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnRegional, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(whiteBoardPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
@@ -294,15 +287,13 @@ public class DrawingTool extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(choice1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(22, 22, 22)
+                .addGap(23, 23, 23)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jButton1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(bRegional)
-                .addGap(0, 225, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnRegional)
+                .addGap(0, 67, Short.MAX_VALUE))
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(whiteBoardPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -364,55 +355,30 @@ public class DrawingTool extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jButton1ActionPerformed
 
-    private void bRegionalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bRegionalActionPerformed
-        
-    }//GEN-LAST:event_bRegionalActionPerformed
-
-    private void choice1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_choice1MouseClicked
-        // TODO add your handling code here:
-        
-        
-        PaletteEvent event = new PaletteEvent(DRAW_MACRO);
-        
-        choice1.addItemListener(new ItemListener() {
-            public void itemStateChanged ( ItemEvent ie){
-                //model.getRecordManager().getMacroList().get(choice1.getSelectedItem());
-                model.getRecordManager().setCurrentRecord(choice1.getSelectedItem());
-                model.handleEvent(event);
-            }
-        });
-    }//GEN-LAST:event_choice1MouseClicked
-
     private void btnMacroActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMacroActionPerformed
         // TODO add your handling code here:
-          if (btnMacro.isSelected()){
-            model.startMacro();
-        }else{
-                String macroName = JOptionPane.showInputDialog(this,"Quel nom ?");
-                if (macroName != null){
-                    choice1.add(macroName);
-                    model.endMacro(macroName);
-                }
-            
-            
-            
-        }
+        PaletteEvent event = new PaletteEvent(DRAW_MACRO);
+        model.handleEvent(event);
     }//GEN-LAST:event_btnMacroActionPerformed
+
+    private void btnRegionalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRegionalActionPerformed
+       PaletteEvent event = new PaletteEvent(DRAW_REGIONAL);
+       model.handleEvent(event);
+    }//GEN-LAST:event_btnRegionalActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton bRegional;
     private javax.swing.JButton btnLine;
-    private javax.swing.JToggleButton btnMacro;
+    private javax.swing.JButton btnMacro;
     private javax.swing.JButton btnRectangle;
-    private java.awt.Choice choice1;
+    private javax.swing.JButton btnRegional;
     private javax.swing.JButton jButton1;
-    private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JMenuItem menuRedo;
     private javax.swing.JMenuItem menuUndo;
+    private javax.swing.JMenu menuUndoRegional;
     private fr.ups.m2ihm.drawingtool.ihm.WhiteBoardPanel whiteBoardPanel;
     // End of variables declaration//GEN-END:variables
 }

@@ -34,7 +34,6 @@ public class SelectionStateMachine implements DrawingStateMachine
     private Point p0;
     private final Map<DrawingEventType, Boolean> eventAvailability;
     private UndoManager undoManager;
-    private RecordManager recordManager;
     
      private PossibleState currentState;
     
@@ -103,9 +102,9 @@ public class SelectionStateMachine implements DrawingStateMachine
                 ghost = null;
 
                 
-                //Command com = new CreateShapeCommand(core, oldGhost);
-                //getUndoManager().registerCommand(com);
-                getUndoManager().undoRegional();
+                CreateUndoRegionalCommand com = new CreateUndoRegionalCommand(oldGhost,getUndoManager());
+                System.out.println(com);
+                com.execute();
 
                 gotoState(SelectionStateMachine.PossibleState.IDLE);
                 firePropertyChange(GHOST_PROPERTY, oldGhost, ghost);
@@ -133,11 +132,6 @@ public class SelectionStateMachine implements DrawingStateMachine
 
     public void setUndoManager(UndoManager undoManager) {
         this.undoManager = undoManager;
-    }
-
-    @Override
-    public void setRecoManager(RecordManager rm) {
-        this.recordManager = rm;
     }
     
     private enum PossibleState {
