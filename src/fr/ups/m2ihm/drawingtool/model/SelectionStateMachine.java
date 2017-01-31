@@ -34,6 +34,7 @@ public class SelectionStateMachine implements DrawingStateMachine
     private Point p0;
     private final Map<DrawingEventType, Boolean> eventAvailability;
     private UndoManager undoManager;
+    private RecordManager recordManager;
     
      private PossibleState currentState;
     
@@ -132,6 +133,11 @@ public class SelectionStateMachine implements DrawingStateMachine
 
     public void setUndoManager(UndoManager undoManager) {
         this.undoManager = undoManager;
+    }
+
+    @Override
+    public void setRecoManager(RecordManager rm) {
+        this.recordManager = rm;
     }
     
     private enum PossibleState {

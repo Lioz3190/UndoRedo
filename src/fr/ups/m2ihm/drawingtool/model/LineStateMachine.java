@@ -22,13 +22,22 @@ public class LineStateMachine implements DrawingStateMachine {
     private Point p0;
     private final Map<DrawingEventType, Boolean> eventAvailability;
     private UndoManager undoManager;
+    private RecordManager recordManager;
 
     public UndoManager getUndoManager() {
         return undoManager;
     }
+    
 
     public void setUndoManager(UndoManager undoManager) {
         this.undoManager = undoManager;
+    }
+        
+    public void setRecoManager(RecordManager rm){
+        this.recordManager = rm;
+    }
+    public RecordManager getRecordManager(){
+        return recordManager;
     }
     
     private void beginDraw(Point point, DrawingToolCore core) {
@@ -94,7 +103,7 @@ public class LineStateMachine implements DrawingStateMachine {
                 //core.createShape(oldGhost);
                 Command com = new CreateShapeCommand(core, oldGhost);
                 getUndoManager().registerCommand(com);
-                
+                getRecordManager().registerCommand(com);
                 gotoState(PossibleState.IDLE);
                 firePropertyChange(GHOST_PROPERTY, oldGhost, ghost);
                 firePropertyChange(SHAPES_PROPERTY, null, core.getShapes());

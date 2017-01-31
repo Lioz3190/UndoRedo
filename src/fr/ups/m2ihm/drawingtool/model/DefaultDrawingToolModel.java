@@ -23,7 +23,11 @@ public class DefaultDrawingToolModel implements DrawingToolModel {
     private final DrawingToolCore core;
     private final PropertyChangeSupport support;
     private final UndoManager undoManager;
-
+    private final RecordManager recoManager;
+    
+    public RecordManager getRecordManager(){
+        return recoManager;
+    }
     @Override
     public void undo() {
         undoManager.undo();
@@ -41,6 +45,16 @@ public class DefaultDrawingToolModel implements DrawingToolModel {
     @Override
     public int allUndo() {
        return(undoManager.getUndoableCommands().size());
+    }
+
+    @Override
+    public void startMacro() {
+        recoManager.beginRecording();
+    }
+
+    @Override
+    public void endMacro(String macroName) {
+        recoManager.endRecording(macroName);
     }
 
     private enum PossibleState {
@@ -67,6 +81,7 @@ public class DefaultDrawingToolModel implements DrawingToolModel {
         core = new DefaultDrawingToolCore();
         undoManager = new UndoManager();
         support = new PropertyChangeSupport(this);
+        recoManager = new RecordManager();
         eventAvailability = new EnumMap<>(PaletteEventType.class);
         for (PaletteEventType eventType : values()) {
             eventAvailability.put(eventType, null);
@@ -84,6 +99,10 @@ public class DefaultDrawingToolModel implements DrawingToolModel {
         DEFAULT_MACRO_STATE_MACHINE.setUndoManager(undoManager);
         DEFAULT_LINE_STATE_MACHINE.setUndoManager(undoManager);
         DEFAULT_RECTANGLE_STATE_MACHINE.setUndoManager(undoManager);
+        
+        DEFAULT_MACRO_STATE_MACHINE.setRecoManager(recoManager);
+        DEFAULT_LINE_STATE_MACHINE.setRecoManager(recoManager);
+        DEFAULT_RECTANGLE_STATE_MACHINE.setRecoManager(recoManager);
 
         undoManager.addPropertyChangeListener(UndoManager.UNDO_COMMANDS_PROPERTY, (e) -> {
             firePropertyChange(DrawingStateMachine.SHAPES_PROPERTY, null, core.getShapes());
@@ -126,6 +145,7 @@ public class DefaultDrawingToolModel implements DrawingToolModel {
     public void init() {
         gotoState(PossibleState.DRAWING_LINE);
         undoManager.init();
+        recoManager.init();
     }
 
     @Override
@@ -165,6 +185,9 @@ public class DefaultDrawingToolModel implements DrawingToolModel {
             case DRAW_RECTANGLE:
                 drawRectangle();
                 break;
+            case DRAW_MACRO:
+                drawMacro();
+                break;
         }
     }
 
@@ -176,6 +199,7 @@ public class DefaultDrawingToolModel implements DrawingToolModel {
                 gotoState(PossibleState.DRAWING_LINE);
                 break;
             case DRAWING_MACRO:
+                gotoState(PossibleState.DRAWING_LINE);
                 break;
         }
     }
@@ -188,7 +212,23 @@ public class DefaultDrawingToolModel implements DrawingToolModel {
             case DRAWING_RECTANGLE:
                 break;
             case DRAWING_MACRO:
+                gotoState(PossibleState.DRAWING_RECTANGLE);
                 break;
         }
     }
+    
+    public void drawMacro(){
+        switch(currentState){
+            case DRAWING_LINE:
+                gotoState(PossibleState.DRAWING_MACRO);
+                break;
+            case DRAWING_RECTANGLE:
+                gotoState(PossibleState.DRAWING_MACRO);
+                break;
+            case DRAWING_MACRO:
+                break;
+        }
+    }
+    
+
 }

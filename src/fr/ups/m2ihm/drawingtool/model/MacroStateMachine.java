@@ -34,6 +34,8 @@ public class MacroStateMachine implements DrawingStateMachine {
     private UndoManager undoManager;
     private Point p0,p;
     private final Stack<Command> macroList;
+
+    
     private final PropertyChangeSupport support;
     private final Map<DrawingEventType, Boolean> eventAvailability;
     private RecordManager recordManager;
@@ -45,9 +47,11 @@ public class MacroStateMachine implements DrawingStateMachine {
         eventAvailability = new EnumMap<>(DrawingEventType.class);
         for (DrawingEventType eventType : values()) {
             eventAvailability.put(eventType, null);
+        
         }
+       
     }
-    
+
     public RecordManager getRecordManager(){
         return recordManager;
     }
@@ -63,11 +67,15 @@ public class MacroStateMachine implements DrawingStateMachine {
     public void setUndoManager(UndoManager undoManager) {
         this.undoManager = undoManager;
     }
+    public void setRecoManager(RecordManager rm){
+        this.recordManager = rm;
+    }
     private void beginDraw(Point point, DrawingToolCore core) {
         switch (currentState) {
             case IDLE:
                 gotoState(PossibleState.MACRO);
                 p0 = point;
+                
                 break;
             case MACRO:
                 break;
@@ -79,21 +87,22 @@ public class MacroStateMachine implements DrawingStateMachine {
             case IDLE:
                 break;
             case MACRO:
-                if ( !getRecordManager().getMacroList().isEmpty()){
+
+                if ( getRecordManager().getCurrentRecord() != null){
                     Stack<Command> macroList = new Stack<>();
-                    Shape s1 = ((CreateShapeCommand)getRecordManager().getRecord().get(0)).getShape();
+                    Shape s1 = ((CreateShapeCommand)getRecordManager().getCurrentRecord().get(0)).getShape();
                     if (s1 instanceof Line)
                         p = ((Line) s1).getSource();
                     else if (s1 instanceof Rectangle)
                         p = ((Rectangle) s1).getUpperLeftCorner();
-                    for ( int i = 0; i < getRecordManager().getRecord().size();i++){
-                        Shape shape = ((CreateShapeCommand)getRecordManager().getRecord().get(i)).getShape();
+                    for ( int i = 0; i < getRecordManager().getCurrentRecord().size();i++){
+                        Shape shape = ((CreateShapeCommand)getRecordManager().getCurrentRecord().get(i)).getShape();
                         if (shape instanceof Line){
                             Point source = ((Line) shape).getSource();
                             Point destination = ((Line) shape).getDestination();
                             Command cmd = new CreateShapeCommand(core,new Line(
                                     new Point(source.x+p0.x-p.x,source.y+p0.y-p.y),
-                                    new Point(destination.x+p0.y-p.x,destination.y+p0.y-p.y)));
+                                    new Point(destination.x+p0.x-p.x,destination.y+p0.y-p.y)));
                             macroList.push(cmd);
                         }
                         else if (shape instanceof Rectangle){
@@ -101,7 +110,7 @@ public class MacroStateMachine implements DrawingStateMachine {
                             Point basDroit = ((Rectangle) shape).getLowerRightCorner();
                             Command cmd = new CreateShapeCommand(core,new Rectangle(
                                     new Point(hautGauche.x+p0.x-p.x,hautGauche.y+p0.y-p.y),
-                                    new Point(basDroit.x+p0.y-p.x,basDroit.y+p0.y-p.y)));
+                                    new Point(basDroit.x+p0.x-p.x,basDroit.y+p0.y-p.y)));
                             macroList.push(cmd);
                         }
                     }
@@ -133,6 +142,8 @@ public class MacroStateMachine implements DrawingStateMachine {
 
     }
 
+
+
     private enum PossibleState {
         IDLE(true, false, false, false), BEGIN(false, true, true, true), MACRO(false, true, true, true);
         public final boolean beginDrawEnabled;
@@ -160,7 +171,6 @@ public class MacroStateMachine implements DrawingStateMachine {
         firePropertyChange(SHAPES_PROPERTY, null, core.getShapes());
     }
 
-    @Override
     public void handleEvent(DrawingEvent event, DrawingToolCore core) {
         switch(event.getEventType()){
             case BEGIN_DRAW:
